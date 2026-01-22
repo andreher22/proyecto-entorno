@@ -5,3 +5,12 @@ crear entorno (dentro de PROYECTO-ENTORNO/ENTORNO)
 activar entorno 
 		cd env1/Scripts         actívate
 		cd ..                 desactívate
+
+instalar django
+		pip install django
+
+crear proyecto
+		python manage.py startproject redsocial .
+
+crear app
+		python manage.py startapp redsocial
