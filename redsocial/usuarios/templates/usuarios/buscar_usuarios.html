@@ -1,0 +1,87 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Buscar Personas - GraphNet{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 32px; font-size: 1.75rem;">
+    <i class="fas fa-search" style="color: var(--primary);"></i>
+    Buscar Personas
+</h1>
+
+<div class="card">
+    <form method="GET" class="search-box">
+        {{ form.query }}
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </form>
+
+    {% if query %}
+    <p style="margin-bottom: 24px; color: var(--text-secondary);">
+        Resultados para "<strong>{{ query }}</strong>" ({{ resultados|length }} encontrado{{ resultados|length|pluralize
+        }})
+    </p>
+
+    {% if resultados %}
+    <div class="users-grid">
+        {% for item in resultados %}
+        <div class="user-card">
+            <div class="user-card-avatar">
+                {% if item.usuario.perfil.foto %}
+                <img src="{{ item.usuario.perfil.foto.url }}" alt="Avatar">
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+
+            <div class="user-card-name">{{ item.usuario.first_name }} {{ item.usuario.last_name }}</div>
+            <div class="user-card-username">@{{ item.usuario.username }}</div>
+
+            {% if item.usuario.perfil.ubicacion %}
+            <div class="user-card-meta">
+                <span><i class="fas fa-map-marker-alt"></i> {{ item.usuario.perfil.ubicacion }}</span>
+            </div>
+            {% endif %}
+
+            <div class="btn-group" style="justify-content: center; margin-top: 12px;">
+                <a href="{% url 'perfil_usuario' item.usuario.username %}" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-eye"></i> Ver
+                </a>
+
+                {% if item.es_amigo %}
+                <span class="btn btn-sm btn-success" style="cursor: default;">
+                    <i class="fas fa-check"></i> Amigo
+                </span>
+                {% elif item.solicitud_enviada %}
+                <span class="btn btn-sm btn-secondary" style="cursor: default;">
+                    <i class="fas fa-clock"></i> Pendiente
+                </span>
+                {% elif item.solicitud_recibida %}
+                <a href="{% url 'solicitudes' %}" class="btn btn-sm btn-success">
+                    <i class="fas fa-user-check"></i> Responder
+                </a>
+                {% else %}
+                <a href="{% url 'enviar_solicitud' item.usuario.id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-user-plus"></i> Agregar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding: 48px;">
+        <i class="fas fa-search"></i>
+        <h3>No se encontraron resultados</h3>
+        <p>Intenta con otro término de búsqueda.</p>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty-state" style="padding: 48px;">
+        <i class="fas fa-users"></i>
+        <h3>Busca personas en GraphNet</h3>
+        <p>Escribe un nombre de usuario, nombre o apellido para encontrar personas.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Mis Amigos - GraphNet{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 32px; font-size: 1.75rem;">
+    <i class="fas fa-users" style="color: var(--primary);"></i>
+    Mis Amigos ({{ num_amigos }})
+</h1>
+
+{% if amigos %}
+<div class="users-grid">
+    {% for amigo in amigos %}
+    <div class="user-card">
+        <div class="user-card-avatar">
+            {% if amigo.perfil.foto %}
+            <img src="{{ amigo.perfil.foto.url }}" alt="Avatar de {{ amigo.username }}">
+            {% else %}
+            <i class="fas fa-user"></i>
+            {% endif %}
+        </div>
+
+        <div class="user-card-name">{{ amigo.first_name }} {{ amigo.last_name }}</div>
+        <div class="user-card-username">@{{ amigo.username }}</div>
+
+        {% if amigo.perfil.ubicacion %}
+        <div class="user-card-meta">
+            <span><i class="fas fa-map-marker-alt"></i> {{ amigo.perfil.ubicacion }}</span>
+        </div>
+        {% endif %}
+
+        <div class="btn-group" style="justify-content: center;">
+            <a href="{% url 'perfil_usuario' amigo.username %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-eye"></i> Ver perfil
+            </a>
+            <a href="{% url 'eliminar_amigo' amigo.id %}" class="btn btn-sm btn-danger">
+                <i class="fas fa-user-minus"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <i class="fas fa-user-friends"></i>
+        <h3>Aún no tienes amigos</h3>
+        <p>Busca personas y envía solicitudes de amistad para conectar.</p>
+        <a href="{% url 'buscar_usuarios' %}" class="btn btn-primary">
+            <i class="fas fa-search"></i> Buscar personas
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}{{ usuario.first_name }} {{ usuario.last_name }} - GraphNet{% endblock %}
+
+{% block content %}
+<!-- Cabecera del perfil -->
+<div class="profile-header">
+    <div class="profile-avatar">
+        {% if perfil.foto %}
+        <img src="{{ perfil.foto.url }}" alt="Avatar de {{ usuario.username }}">
+        {% else %}
+        <i class="fas fa-user"></i>
+        {% endif %}
+    </div>
+
+    <div class="profile-info">
+        <h1 class="profile-name">{{ usuario.first_name }} {{ usuario.last_name }}</h1>
+        <p class="profile-username">@{{ usuario.username }}</p>
+
+        {% if perfil.bio %}
+        <p class="profile-bio">{{ perfil.bio }}</p>
+        {% endif %}
+
+        <div class="profile-meta">
+            {% if perfil.ubicacion %}
+            <span><i class="fas fa-map-marker-alt"></i> {{ perfil.ubicacion }}</span>
+            {% endif %}
+            <span><i class="fas fa-users"></i> {{ num_amigos }} amigo{{ num_amigos|pluralize }}</span>
+            <span><i class="fas fa-calendar"></i> Se unió en {{ perfil.fecha_creacion|date:"F Y" }}</span>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        {% if es_propio %}
+        <a href="{% url 'editar_perfil' %}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Editar perfil
+        </a>
+        {% else %}
+        {% if son_amigos %}
+        <a href="{% url 'eliminar_amigo' usuario.id %}" class="btn btn-danger">
+            <i class="fas fa-user-minus"></i> Eliminar amigo
+        </a>
+        {% elif solicitud_enviada %}
+        <button class="btn btn-secondary" disabled>
+            <i class="fas fa-clock"></i> Solicitud enviada
+        </button>
+        {% elif solicitud_recibida %}
+        <a href="{% url 'aceptar_solicitud' solicitud_recibida.id %}" class="btn btn-success">
+            <i class="fas fa-check"></i> Aceptar solicitud
+        </a>
+        <a href="{% url 'rechazar_solicitud' solicitud_recibida.id %}" class="btn btn-danger">
+            <i class="fas fa-times"></i> Rechazar
+        </a>
+        {% else %}
+        <a href="{% url 'enviar_solicitud' usuario.id %}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Agregar amigo
+        </a>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Amigos en común (solo si no es perfil propio) -->
+    {% if not es_propio and amigos_comun %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-user-friends"></i>
+                Amigos en común ({{ amigos_comun|length }})
+            </h2>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                {% for amigo in amigos_comun %}
+                <a href="{% url 'perfil_usuario' amigo.username %}" style="display: flex; align-items: center; gap: 8px; 
+                                  background: var(--glass-bg); padding: 8px 12px; 
+                                  border-radius: var(--border-radius-sm);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; 
+                                        background: var(--primary-gradient); 
+                                        display: flex; align-items: center; justify-content: center;">
+                        {% if amigo.perfil.foto %}
+                        <img src="{{ amigo.perfil.foto.url }}"
+                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                        <i class="fas fa-user" style="font-size: 0.8rem; color: white;"></i>
+                        {% endif %}
+                    </div>
+                    <span>{{ amigo.first_name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de amigos -->
+    <div class="card" {% if not es_propio and not amigos_comun %}style="grid-column: span 2;" {% endif %}>
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-users"></i>
+                Amigos de {{ usuario.first_name }} ({{ num_amigos }})
+            </h2>
+        </div>
+        <div class="card-body">
+            {% if amigos %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+                {% for amigo in amigos|slice:":12" %}
+                <a href="{% url 'perfil_usuario' amigo.username %}" class="request-card" style="padding: 12px;">
+                    <div class="request-avatar" style="width: 40px; height: 40px;">
+                        {% if amigo.perfil.foto %}
+                        <img src="{{ amigo.perfil.foto.url }}" alt="Avatar">
+                        {% else %}
+                        <i class="fas fa-user" style="font-size: 1rem;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="request-info">
+                        <div class="request-name" style="font-size: 0.9rem;">
+                            {{ amigo.first_name }} {{ amigo.last_name }}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding: 32px;">
+                <i class="fas fa-user-friends"></i>
+                <p>{{ usuario.first_name }} aún no tiene amigos.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Solicitudes de Amistad - GraphNet{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 32px; font-size: 1.75rem;">
+    <i class="fas fa-user-plus" style="color: var(--primary);"></i>
+    Solicitudes de Amistad
+</h1>
+
+<!-- Solicitudes recibidas -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-inbox"></i>
+            Solicitudes recibidas ({{ solicitudes_recibidas.count }})
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if solicitudes_recibidas %}
+        <div class="request-list">
+            {% for solicitud in solicitudes_recibidas %}
+            <div class="request-card">
+                <div class="request-avatar">
+                    {% if solicitud.de_usuario.perfil.foto %}
+                    <img src="{{ solicitud.de_usuario.perfil.foto.url }}" alt="Avatar">
+                    {% else %}
+                    <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="request-info">
+                    <div class="request-name">
+                        <a href="{% url 'perfil_usuario' solicitud.de_usuario.username %}">
+                            {{ solicitud.de_usuario.first_name }} {{ solicitud.de_usuario.last_name }}
+                        </a>
+                    </div>
+                    <div class="request-time">
+                        <i class="fas fa-clock"></i> {{ solicitud.fecha_creacion|timesince }} atrás
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <a href="{% url 'aceptar_solicitud' solicitud.id %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-check"></i> Aceptar
+                    </a>
+                    <a href="{% url 'rechazar_solicitud' solicitud.id %}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-times"></i> Rechazar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding: 32px;">
+            <i class="fas fa-inbox"></i>
+            <h3>No tienes solicitudes pendientes</h3>
+            <p>Cuando alguien te envíe una solicitud, aparecerá aquí.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Solicitudes enviadas -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-paper-plane"></i>
+            Solicitudes enviadas ({{ solicitudes_enviadas.count }})
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if solicitudes_enviadas %}
+        <div class="request-list">
+            {% for solicitud in solicitudes_enviadas %}
+            <div class="request-card">
+                <div class="request-avatar">
+                    {% if solicitud.para_usuario.perfil.foto %}
+                    <img src="{{ solicitud.para_usuario.perfil.foto.url }}" alt="Avatar">
+                    {% else %}
+                    <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="request-info">
+                    <div class="request-name">
+                        <a href="{% url 'perfil_usuario' solicitud.para_usuario.username %}">
+                            {{ solicitud.para_usuario.first_name }} {{ solicitud.para_usuario.last_name }}
+                        </a>
+                    </div>
+                    <div class="request-time">
+                        <i class="fas fa-clock"></i> Enviada hace {{ solicitud.fecha_creacion|timesince }}
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <a href="{% url 'cancelar_solicitud' solicitud.id %}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-undo"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding: 32px;">
+            <i class="fas fa-paper-plane"></i>
+            <h3>No has enviado solicitudes</h3>
+            <p>Busca personas y envía solicitudes de amistad.</p>
+            <a href="{% url 'buscar_usuarios' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-search"></i> Buscar personas
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

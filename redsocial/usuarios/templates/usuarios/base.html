@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RedSocial{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>GraphNet</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    {% if user.perfil.foto %}
+                        <img src="{{ user.perfil.foto.url }}" alt="Avatar">
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
+                    <span class="user-username">@{{ user.username }}</span>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'perfil' %}" class="{% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                        <i class="fas fa-user"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'lista_amigos' %}" class="{% if request.resolver_match.url_name == 'lista_amigos' %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Amigos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'solicitudes' %}" class="{% if request.resolver_match.url_name == 'solicitudes' %}active{% endif %}">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Solicitudes</span>
+                        {% if user.perfil.solicitudes_pendientes_recibidas.count > 0 %}
+                            <span class="badge">{{ user.perfil.solicitudes_pendientes_recibidas.count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'recomendaciones' %}" class="{% if request.resolver_match.url_name == 'recomendaciones' %}active{% endif %}">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Descubrir</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'buscar_usuarios' %}" class="{% if request.resolver_match.url_name == 'buscar_usuarios' %}active{% endif %}">
+                        <i class="fas fa-search"></i>
+                        <span>Buscar</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                            {{ message }}
+                            <button class="alert-close" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    <div class="auth-container">
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

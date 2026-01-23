@@ -1,0 +1,52 @@
+{% extends 'usuarios/base.html' %}
+{% load static %}
+
+{% block auth_content %}
+<div class="landing-container">
+    <div class="landing-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <i class="fas fa-project-diagram"></i>
+                GraphNet
+            </h1>
+            <p class="hero-subtitle">
+                Una red social inteligente que utiliza análisis de grafos para conectarte
+                con las personas más relevantes para ti. Descubre amigos a través de
+                recomendaciones basadas en tus conexiones.
+            </p>
+
+            <div class="hero-features">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="feature-text">Conecta con amigos</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="feature-text">IA de recomendaciones</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="feature-text">Análisis de grafos</div>
+                </div>
+            </div>
+
+            <div class="hero-buttons">
+                <a href="{% url 'registro' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Crear Cuenta
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

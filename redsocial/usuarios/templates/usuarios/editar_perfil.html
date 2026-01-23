@@ -1,0 +1,87 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Editar Perfil - GraphNet{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px;">
+    <h1 style="margin-bottom: 32px; font-size: 1.75rem;">
+        <i class="fas fa-user-edit" style="color: var(--primary);"></i>
+        Editar Perfil
+    </h1>
+
+    <div class="card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h3 style="margin-bottom: 20px; color: var(--text-secondary);">
+                <i class="fas fa-user"></i> Información personal
+            </h3>
+
+            <div style="display: flex; gap: 16px;">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Nombre</label>
+                    {{ form_usuario.first_name }}
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Apellido</label>
+                    {{ form_usuario.last_name }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Correo electrónico</label>
+                {{ form_usuario.email }}
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 24px 0;">
+
+            <h3 style="margin-bottom: 20px; color: var(--text-secondary);">
+                <i class="fas fa-address-card"></i> Perfil público
+            </h3>
+
+            <div class="form-group">
+                <label class="form-label">Foto de perfil</label>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="profile-avatar" style="width: 80px; height: 80px;">
+                        {% if user.perfil.foto %}
+                        <img src="{{ user.perfil.foto.url }}" alt="Avatar">
+                        {% else %}
+                        <i class="fas fa-user" style="font-size: 2rem;"></i>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        {{ form_perfil.foto }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Biografía</label>
+                {{ form_perfil.bio }}
+                <div class="form-text">
+                    Cuéntale al mundo un poco sobre ti (máximo 500 caracteres)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Ubicación</label>
+                {{ form_perfil.ubicacion }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Fecha de nacimiento</label>
+                {{ form_perfil.fecha_nacimiento }}
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 32px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+                <a href="{% url 'perfil' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

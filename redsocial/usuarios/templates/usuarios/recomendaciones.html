@@ -1,0 +1,169 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Descubrir Personas - GraphNet{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 16px; font-size: 1.75rem;">
+    <i class="fas fa-lightbulb" style="color: var(--primary);"></i>
+    Descubrir Personas
+</h1>
+
+<p style="color: var(--text-secondary); margin-bottom: 32px;">
+    Recomendaciones basadas en <strong>análisis de grafos</strong> y <strong>amigos en común</strong>.
+    Utilizamos algoritmos de <strong>búsqueda en anchura (BFS)</strong> para encontrar personas
+    cercanas a ti en la red social.
+</p>
+
+<!-- Estadísticas del grafo -->
+<div class="card" style="margin-bottom: 32px;">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-project-diagram"></i>
+            Tu posición en el grafo
+        </h2>
+    </div>
+    <div class="card-body">
+        <div class="graph-stats">
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas.amigos_directos }}</div>
+                <div class="graph-stat-label">Nivel 1<br><small>(Amigos directos)</small></div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas.nivel_2 }}</div>
+                <div class="graph-stat-label">Nivel 2<br><small>(Amigos de amigos)</small></div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas.nivel_3 }}</div>
+                <div class="graph-stat-label">Nivel 3<br><small>(A 3 pasos)</small></div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas.alcance }}</div>
+                <div class="graph-stat-label">Alcance total<br><small>(Personas accesibles)</small></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recomendaciones -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-users"></i>
+            Personas recomendadas para ti
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if recomendaciones %}
+        <div class="users-grid">
+            {% for rec in recomendaciones %}
+            <div class="user-card">
+                <div class="user-card-avatar">
+                    {% if rec.usuario.perfil.foto %}
+                    <img src="{{ rec.usuario.perfil.foto.url }}" alt="Avatar">
+                    {% else %}
+                    <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+
+                <div class="user-card-name">{{ rec.usuario.first_name }} {{ rec.usuario.last_name }}</div>
+                <div class="user-card-username">@{{ rec.usuario.username }}</div>
+
+                {% if rec.puntuacion > 0 %}
+                <div class="score-badge">
+                    <i class="fas fa-star"></i> Puntuación: {{ rec.puntuacion }}
+                </div>
+                {% endif %}
+
+                {% if rec.num_amigos_comun > 0 %}
+                <div class="mutual-friends">
+                    <i class="fas fa-user-friends"></i>
+                    {{ rec.num_amigos_comun }} amigo{{ rec.num_amigos_comun|pluralize }} en común
+                    {% if rec.amigos_comun_nombres %}
+                    <br><small>({{ rec.amigos_comun_nombres|join:", " }})</small>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if rec.distancia > 0 %}
+                <div class="user-card-meta">
+                    <span>
+                        <i class="fas fa-route"></i>
+                        A {{ rec.distancia }} paso{{ rec.distancia|pluralize }} de ti
+                    </span>
+                </div>
+                {% endif %}
+
+                <div class="btn-group" style="justify-content: center; margin-top: 12px;">
+                    <a href="{% url 'perfil_usuario' rec.usuario.username %}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'enviar_solicitud' rec.usuario.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-user-plus"></i> Agregar
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>No hay recomendaciones disponibles</h3>
+            <p>Conecta con más personas para que te podamos recomendar nuevos amigos basados en tu red.</p>
+            <a href="{% url 'buscar_usuarios' %}" class="btn btn-primary">
+                <i class="fas fa-search"></i> Buscar personas
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Explicación del algoritmo -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-code"></i>
+            ¿Cómo funciona el motor de recomendaciones?
+        </h2>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+            <div>
+                <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 28px; height: 28px; background: var(--primary-gradient); 
+                                 border-radius: 50%; display: flex; align-items: center; 
+                                 justify-content: center; font-size: 0.8rem;">1</span>
+                    Construcción del Grafo
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Cada usuario es un <strong>nodo</strong> y cada amistad es una <strong>arista</strong>
+                    que conecta dos nodos.
+                </p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 28px; height: 28px; background: var(--primary-gradient); 
+                                 border-radius: 50%; display: flex; align-items: center; 
+                                 justify-content: center; font-size: 0.8rem;">2</span>
+                    Búsqueda BFS
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Usamos <strong>Breadth-First Search</strong> para encontrar usuarios a 2, 3 y 4
+                    niveles de distancia desde ti.
+                </p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 28px; height: 28px; background: var(--primary-gradient); 
+                                 border-radius: 50%; display: flex; align-items: center; 
+                                 justify-content: center; font-size: 0.8rem;">3</span>
+                    Puntuación
+                </h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Cada candidato recibe puntos: <strong>+10</strong> por amigo en común,
+                    <strong>+5</strong> si está a nivel 2, <strong>+2</strong> si está a nivel 3.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

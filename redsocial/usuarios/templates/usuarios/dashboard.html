@@ -1,0 +1,180 @@
+{% extends 'usuarios/base.html' %}
+
+{% block title %}Dashboard - GraphNet{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 32px; font-size: 1.75rem;">
+    ¡Hola, {{ user.first_name }}! 👋
+</h1>
+
+<!-- Estadísticas -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ num_amigos }}</div>
+        <div class="stat-label">Amigos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon secondary">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="stat-value">{{ solicitudes_pendientes }}</div>
+        <div class="stat-label">Solicitudes</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon accent">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-value">{{ estadisticas_grafo.nivel_2 }}</div>
+        <div class="stat-label">Amigos de amigos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-globe"></i>
+        </div>
+        <div class="stat-value">{{ estadisticas_grafo.alcance }}</div>
+        <div class="stat-label">Tu alcance en la red</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Recomendaciones de amigos -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-lightbulb"></i>
+                Personas que quizás conozcas
+            </h2>
+            <a href="{% url 'recomendaciones' %}" class="btn btn-sm btn-secondary">Ver más</a>
+        </div>
+        <div class="card-body">
+            {% if recomendaciones %}
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for rec in recomendaciones %}
+                <div class="request-card">
+                    <div class="request-avatar">
+                        {% if rec.usuario.perfil.foto %}
+                        <img src="{{ rec.usuario.perfil.foto.url }}" alt="Avatar">
+                        {% else %}
+                        <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="request-info">
+                        <div class="request-name">
+                            <a href="{% url 'perfil_usuario' rec.usuario.username %}">
+                                {{ rec.usuario.first_name }} {{ rec.usuario.last_name }}
+                            </a>
+                        </div>
+                        {% if rec.num_amigos_comun > 0 %}
+                        <div class="request-time">
+                            <i class="fas fa-user-friends"></i>
+                            {{ rec.num_amigos_comun }} amigo{{ rec.num_amigos_comun|pluralize }} en común
+                        </div>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'enviar_solicitud' rec.usuario.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding: 32px;">
+                <i class="fas fa-users"></i>
+                <h3>Sin recomendaciones</h3>
+                <p>¡Conecta con más personas para obtener recomendaciones!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tus amigos -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-users"></i>
+                Tus amigos
+            </h2>
+            <a href="{% url 'lista_amigos' %}" class="btn btn-sm btn-secondary">Ver todos</a>
+        </div>
+        <div class="card-body">
+            {% if amigos %}
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for amigo in amigos %}
+                <div class="request-card">
+                    <div class="request-avatar">
+                        {% if amigo.perfil.foto %}
+                        <img src="{{ amigo.perfil.foto.url }}" alt="Avatar">
+                        {% else %}
+                        <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="request-info">
+                        <div class="request-name">
+                            <a href="{% url 'perfil_usuario' amigo.username %}">
+                                {{ amigo.first_name }} {{ amigo.last_name }}
+                            </a>
+                        </div>
+                        <div class="request-time">@{{ amigo.username }}</div>
+                    </div>
+                    <a href="{% url 'perfil_usuario' amigo.username %}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding: 32px;">
+                <i class="fas fa-user-friends"></i>
+                <h3>Sin amigos aún</h3>
+                <p>¡Busca personas y envía solicitudes de amistad!</p>
+                <a href="{% url 'buscar_usuarios' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i> Buscar personas
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Información del grafo -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-project-diagram"></i>
+            Tu Grafo Social
+        </h2>
+    </div>
+    <div class="card-body">
+        <p style="margin-bottom: 20px; color: var(--text-secondary);">
+            Esta red social utiliza <strong>algoritmos de grafos</strong> para analizar tus conexiones
+            y recomendarte personas relevantes. Tu posición en el grafo social determina quién verás
+            como sugerencia.
+        </p>
+
+        <div class="graph-stats">
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas_grafo.amigos_directos }}</div>
+                <div class="graph-stat-label">Nivel 1 (Amigos)</div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas_grafo.nivel_2 }}</div>
+                <div class="graph-stat-label">Nivel 2 (Amigos de amigos)</div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas_grafo.nivel_3 }}</div>
+                <div class="graph-stat-label">Nivel 3</div>
+            </div>
+            <div class="graph-stat">
+                <div class="graph-stat-value">{{ estadisticas_grafo.total_usuarios }}</div>
+                <div class="graph-stat-label">Total en la red</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
