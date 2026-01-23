@@ -8,9 +8,7 @@ activar entorno
 
 instalar django
 		pip install django
-
-crear proyecto
-		python manage.py startproject redsocial .
-
-crear app
-		python manage.py startapp redsocial
+		pip list
+		
+cd redsocial
+	python manage.py runserver
